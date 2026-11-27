@@ -1,0 +1,11 @@
+{
+  "name": "obsidian-vault-agent",
+  "version": "1.0.0",
+  "description": "Fully local Obsidian plugin: knowledge graph, ideas/themes, organization suggestions, offline Q&A. Zero network calls.",
+  "main": "main.js",
+  "scripts": {
+    "test": "node --test test/engine.test.js",
+    "demo": "node test/demo.js"
+  },
+  "license": "MIT"
+}

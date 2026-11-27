@@ -1,0 +1,10 @@
+{
+  "id": "vault-agent",
+  "name": "Vault Agent (Local)",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Fully local vault agent: knowledge graph, design ideas & themes, organization suggestions, and offline Q&A. Zero network calls, no API keys.",
+  "author": "you",
+  "authorUrl": "",
+  "isDesktopOnly": false
+}
