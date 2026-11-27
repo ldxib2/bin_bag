@@ -1,0 +1,7 @@
+.vault-agent-modal {
+  min-width: 420px;
+}
+
+.vault-agent-modal input[type="text"] {
+  width: 100%;
+}
