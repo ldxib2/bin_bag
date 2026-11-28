@@ -4,7 +4,7 @@
   "description": "Fully local Obsidian plugin: knowledge graph, ideas/themes, organization suggestions, offline Q&A. Zero network calls.",
   "main": "main.js",
   "scripts": {
-    "test": "node --test test/engine.test.js",
+    "test": "node --test test/*.test.js",
     "demo": "node test/demo.js"
   },
   "license": "MIT"
