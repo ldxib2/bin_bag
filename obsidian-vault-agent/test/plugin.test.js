@@ -45,6 +45,18 @@ test('settings defaults are sane and engineOpts parses them', async () => {
   assert.ok(o.minWords >= 1);
 });
 
+test('generated file names are legal on all platforms (no \\ / : * ? " < > |)', async () => {
+  const VaultAgentPlugin = loadPlugin();
+  const plugin = new VaultAgentPlugin({ vault: {}, workspace: {} }, { id: 'vault-agent' });
+  await plugin.onload();
+  const illegal = /[\\/:*?"<>|]/;
+  assert.ok(!illegal.test(plugin.stamp()), 'stamp must be filename-safe, got: ' + plugin.stamp());
+  assert.ok(!illegal.test(plugin.sanitizeFileName('a/b:c*d?e"f<g>h|i')));
+  assert.strictEqual(plugin.sanitizePath('Answers/weird:name?.md'), 'Answers/weird-name-.md');
+  const fullPath = plugin.sanitizePath('Agent Reports/Scan ' + plugin.stamp() + '.md');
+  for (const seg of fullPath.split('/')) assert.ok(!illegal.test(seg), 'illegal char in segment: ' + seg);
+});
+
 test('isExcluded skips the report folder and configured folders', async () => {
   const VaultAgentPlugin = loadPlugin();
   const plugin = new VaultAgentPlugin({ vault: {}, workspace: {} }, { id: 'vault-agent' });

@@ -37,6 +37,7 @@ Requires Obsidian 1.4+. Works on desktop and mobile. No dependencies, no `npm in
 - Turn off **Restricted mode** (Settings → Community plugins) if it is on.
 - To see the exact error: press Ctrl/Cmd+Shift+I → Console tab, then reload the plugin. If the console shows a module error mentioning `engine` or `require`, you are running an older copy from before the plugin became single-file — re-copy the current `main.js`.
 - On very old Obsidian versions (< 1.4) the plugin is rejected with a version message instead — update Obsidian.
+- `file name cannot contain any of the following \\ / : * ? " < > |` means a report filename contained an illegal character — fixed in current `main.js` (all generated names are sanitized, including timestamps, which previously contained `:`). Re-copy the latest `main.js`.
 
 ## Privacy guarantee
 

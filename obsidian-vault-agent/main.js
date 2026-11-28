@@ -844,9 +844,9 @@ class VaultAgentPlugin extends Plugin {
   }
 
   async writeReport(name, content) {
-    const folder = this.settings.reportFolder;
+    const folder = this.sanitizePath(this.settings.reportFolder);
     await this.ensureFolder(folder);
-    const path = folder + '/' + name;
+    const path = folder + '/' + this.sanitizePath(name);
     const existing = this.app.vault.getAbstractFileByPath(path);
     if (existing instanceof TFile) {
       await this.app.vault.modify(existing, content);
@@ -862,7 +862,15 @@ class VaultAgentPlugin extends Plugin {
   }
 
   stamp() {
-    return new Date().toISOString().slice(0, 16).replace('T', ' ');
+    return new Date().toISOString().slice(0, 16).replace('T', ' ').replace(/:/g, '-');
+  }
+
+  sanitizeFileName(name) {
+    return String(name).replace(/[\\/:*?"<>|]/g, '-');
+  }
+
+  sanitizePath(p) {
+    return String(p).split('/').map(seg => this.sanitizeFileName(seg)).join('/');
   }
 
   async runFullScan() {
@@ -911,8 +919,8 @@ class VaultAgentPlugin extends Plugin {
     try {
       const a = await this.analyzeNow();
       const res = a.answer(query, 6);
-      const safe = query.slice(0, 60).replace(/[\\/:*?"<>|]/g, '-');
-      await this.ensureFolder(this.settings.reportFolder + '/Answers');
+      const safe = this.sanitizeFileName(query.slice(0, 60));
+      await this.ensureFolder(this.sanitizePath(this.settings.reportFolder) + '/Answers');
       const path = await this.writeReport('Answers/' + safe + '.md', res.markdown);
       new Notice('Vault Agent: answered from ' + res.results.length + ' note(s), fully offline.');
       await this.openPath(path);
