@@ -18,24 +18,31 @@ Health scan also reports: **orphans** (notes with no links in or out), **broken 
 
 ## Install (no build step)
 
-1. Copy these four files into a new folder in your vault:
+1. Copy these three files into a new folder in your vault:
    ```
    <your-vault>/.obsidian/plugins/vault-agent/
      manifest.json
      main.js
-     engine.js
      styles.css
    ```
-2. Obsidian → Settings → Community plugins → turn **Vault Agent (Local)** on.
+   `main.js` is fully self-contained (the analysis engine is embedded in it), so there is no second JS file to copy — this is what makes the plugin load reliably on desktop and mobile.
+2. Restart Obsidian (or Settings → Community plugins → reload), then Settings → Community plugins → turn **Vault Agent (Local)** on.
 3. Open the command palette and run **Vault Agent: Full scan**.
 
 Requires Obsidian 1.4+. Works on desktop and mobile. No dependencies, no `npm install`, no build.
+
+### "Failed to load plugin" troubleshooting
+
+- Make sure the folder `.obsidian/plugins/vault-agent/` contains **all three** files, especially `manifest.json` and `main.js`, and that you restarted Obsidian after copying.
+- Turn off **Restricted mode** (Settings → Community plugins) if it is on.
+- To see the exact error: press Ctrl/Cmd+Shift+I → Console tab, then reload the plugin. If the console shows a module error mentioning `engine` or `require`, you are running an older copy from before the plugin became single-file — re-copy the current `main.js`.
+- On very old Obsidian versions (< 1.4) the plugin is rejected with a version message instead — update Obsidian.
 
 ## Privacy guarantee
 
 - The plugin contains **no network code at all**: no `fetch`, no `XMLHttpRequest`, no sockets, no `http`/`https` requires, no URLs, no API keys. You can verify this yourself:
   ```
-  grep -nE "fetch|XMLHttpRequest|WebSocket|https?://" .obsidian/plugins/vault-agent/main.js .obsidian/plugins/vault-agent/engine.js
+  grep -nE "fetch|XMLHttpRequest|WebSocket|https?://" .obsidian/plugins/vault-agent/main.js
   ```
   The test suite (`npm test`) enforces this automatically.
 - All analysis (parsing, TF-IDF, graph, clustering, search) runs in the Obsidian process on your device. Nothing is uploaded, synced to a server, or logged anywhere.
@@ -43,7 +50,7 @@ Requires Obsidian 1.4+. Works on desktop and mobile. No dependencies, no `npm in
 
 ## How it works
 
-- `engine.js` — pure, dependency-free analysis engine (also unit-tested in Node):
+- `main.js` — single self-contained file = analysis engine + Obsidian wrapper (why: Obsidian only guarantees loading the single `main.js` entry point; multi-file plugins with relative `require()` fail on mobile and some desktop builds, which shows up as "failed to load plugin"). The engine is pure and dependency-free (also unit-tested in Node via an `obsidian` stub):
   - parses frontmatter, `[[wiki links]]`, `#tags`, headings, code-fence-stripped text
   - builds the link graph (outlinks, backlinks, orphans, broken links)
   - TF-IDF vectors per note (smoothed idf, L2-normalized), cosine similarity
@@ -51,8 +58,8 @@ Requires Obsidian 1.4+. Works on desktop and mobile. No dependencies, no `npm in
   - theme clustering via union-find over similar pairs, labeled by top shared terms
   - idea extraction with strong/weak marker weighting
   - extractive local "answers": rank notes by query similarity, quote the best sentence from each
-- `main.js` — thin Obsidian wrapper: ribbon icon, commands, settings tab, report writing, checkbox-apply of suggested links.
-- `test/fixture-vault/` — a 15-note demo vault; `npm run demo` prints the generated reports so you can see the output format before installing.
+- Obsidian wrapper (same file): ribbon icon, commands, settings tab, report writing, checkbox-apply of suggested links.
+- `test/fixture-vault/` — a 15-note demo vault; `npm run demo` prints the generated reports so you can see the output format before installing. `test/plugin.test.js` smoke-loads the plugin against a mock Obsidian API and verifies all commands register.
 
 ## Settings
 

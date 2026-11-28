@@ -4,7 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
-const engine = require('../engine.js');
+const engine = require('./obsidian-stub.js').loadPlugin().engine;
 
 const ROOT = path.join(__dirname, 'fixture-vault');
 
@@ -133,9 +133,12 @@ test('renderers produce markdown reports', () => {
   assert.ok(dash.includes('zero network calls'));
 });
 
-test('privacy: engine and plugin source contain no network calls or API endpoints', () => {
-  for (const f of ['engine.js', 'main.js']) {
-    const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+test('privacy: all shipped plugin source contains no network calls or API endpoints', () => {
+  const rootDir = path.join(__dirname, '..');
+  const jsFiles = fs.readdirSync(rootDir).filter(f => f.endsWith('.js'));
+  assert.ok(jsFiles.includes('main.js'), 'main.js must exist at plugin root');
+  for (const f of jsFiles) {
+    const src = fs.readFileSync(path.join(rootDir, f), 'utf8');
     assert.ok(!/\bfetch\s*\(/.test(src), f + ' must not call fetch');
     assert.ok(!/XMLHttpRequest|WebSocket|EventSource/.test(src), f + ' must not open sockets');
     assert.ok(!/require\s*\(\s*['"](https?|net|tls|node-fetch|axios|got)['"]\s*\)/.test(src), f + ' must not require network modules');

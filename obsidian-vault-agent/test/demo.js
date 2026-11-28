@@ -2,7 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const engine = require('../engine.js');
+const engine = require('./obsidian-stub.js').loadPlugin().engine;
 
 const ROOT = path.join(__dirname, 'fixture-vault');
 
